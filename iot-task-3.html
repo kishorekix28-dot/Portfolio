@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IoT automation with IFTTT, Adafruit IO, MQTT, and an ESP32 LED.">
+    <title>Task 03 | IFTTT + Adafruit IO IoT Automation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="stylesheet" href="iot-task-1.css">
+</head>
+<body>
+    <header class="task-nav">
+        <a class="brand" href="index.html#protosem"><span class="brand-mark">K</span> Kishore RJ</a>
+        <a class="back-link" href="index.html#protosem"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to IoT assignments</a>
+    </header>
+
+    <main>
+        <section class="task-hero" aria-labelledby="task-title">
+            <div class="hero-grid" aria-hidden="true"></div>
+            <div class="hero-inner">
+                <p class="eyebrow"><span class="pulse-dot"></span> IOT WORKS / TASK 03</p>
+                <p class="hero-overline">IFTTT &bull; ADAFRUIT IO &bull; MQTT &bull; ESP32</p>
+                <h1 id="task-title">IFTTT + Adafruit IO<br><span>IoT Automation</span></h1>
+                <p class="hero-copy">Turn an external event into a physical action by linking an IFTTT Applet, a cloud feed, and an ESP32 subscriber.</p>
+                <div class="hero-flow" aria-label="Automation system flow">
+                    <span>Trigger</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>IFTTT</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>Adafruit IO</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>ESP32</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>LED</span>
+                </div>
+            </div>
+            <div class="hero-index" aria-hidden="true">03</div>
+        </section>
+
+        <div class="page-layout">
+            <aside class="side-rail" aria-label="Assignment sections">
+                <p>ON THIS PAGE</p>
+                <a href="#overview">01 Overview</a>
+                <a href="#concepts">02 Automation concepts</a>
+                <a href="#system">03 System design</a>
+                <a href="#ifttt">04 IFTTT Applet</a>
+                <a href="#cloud">05 Adafruit IO feed</a>
+                <a href="#hardware">06 Hardware</a>
+                <a href="#implementation">07 Firmware</a>
+                <a href="#testing">08 Testing</a>
+                <a href="#evidence">09 Evidence &amp; video</a>
+                <a href="#challenges">10 Challenges</a>
+                <a href="#reflection">11 Reflection</a>
+            </aside>
+
+            <article class="task-content">
+                <section class="content-section" id="overview">
+                    <p class="section-index">01 / THE CHALLENGE</p>
+                    <h2>Overview</h2>
+                    <div class="overview-grid">
+                        <div><h3>Objective</h3><p>Develop an IoT automation system using an ESP32, IFTTT, Adafruit IO, and MQTT. A predefined external event should update a cloud feed and cause the ESP32 to control an LED without requiring a manual dashboard command.</p></div>
+                        <div><h3>Problem being addressed</h3><p>A basic connected device is often controlled manually through an app or dashboard. Automation adds a trigger and rules so a configured event can start the action automatically.</p></div>
+                    </div>
+                    <div class="result-callout"><span class="callout-icon"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span><div><strong>Project summary</strong><p>IFTTT detects a configured trigger and runs an action that updates an Adafruit IO feed. The ESP32 subscribes to that feed over MQTT and changes the LED state in response.</p></div></div>
+                </section>
+
+                <section class="content-section" id="concepts">
+                    <p class="section-index">02 / AUTOMATION CONCEPTS</p>
+                    <h2>From event to action</h2>
+                    <p class="section-intro">IoT automation lets connected systems perform an action when a predefined event or condition occurs, instead of waiting for a person to press a control.</p>
+                    <div class="concept-grid">
+                        <div class="concept"><span>01 / IF THIS</span><h4>Trigger</h4><p>An event that starts the automation. The specific trigger for this build is project-specific and should be recorded in the configuration below.</p></div>
+                        <div class="concept"><span>02 / AUTOMATION</span><h4>IFTTT Applet</h4><p>IFTTT means “If This Then That.” An Applet connects a trigger service or event to an action.</p></div>
+                        <div class="concept"><span>03 / THEN THAT</span><h4>Action</h4><p>The operation IFTTT runs after the trigger. Here, the action sends a value to Adafruit IO.</p></div>
+                        <div class="concept"><span>04 / DEVICE</span><h4>ESP32 + LED</h4><p>The ESP32 receives the cloud command through MQTT and applies it to its GPIO output.</p></div>
+                    </div>
+                    <p>Examples of possible IFTTT triggers include a Webhooks event, a button event, a scheduled event, or an event from a connected application. The actual event used for this assignment should be documented accurately rather than inferred.</p>
+                </section>
+
+                <section class="content-section" id="system">
+                    <p class="section-index">03 / END-TO-END ARCHITECTURE</p>
+                    <h2>System design &amp; data flow</h2>
+                    <p class="section-intro">The automation and device-control layers are separate: IFTTT evaluates the trigger, while Adafruit IO and MQTT deliver the command to the hardware.</p>
+                    <div class="flow-diagram" aria-label="External trigger flows through IFTTT and Adafruit IO to an ESP32 MQTT subscriber and LED">
+                        <div class="flow-node"><i class="fa-solid fa-bolt" aria-hidden="true"></i><strong>Trigger</strong><small>External event</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>If This</small></span>
+                        <div class="flow-node"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i><strong>IFTTT</strong><small>Applet action</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Update feed</small></span>
+                        <div class="flow-node emphasis"><i class="fa-solid fa-cloud" aria-hidden="true"></i><strong>Adafruit IO</strong><small>Feed + MQTT broker</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>MQTT</small></span>
+                        <div class="flow-node"><i class="fa-solid fa-microchip" aria-hidden="true"></i><strong>ESP32</strong><small>Subscriber</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>GPIO 2</small></span>
+                        <div class="flow-node led-node"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><strong>LED</strong><small>Physical output</small></div>
+                    </div>
+                    <ol class="data-flow-list">
+                        <li>A predefined external trigger occurs.</li>
+                        <li>IFTTT detects the event and runs the configured Applet.</li>
+                        <li>The Applet action sends the selected command to Adafruit IO.</li>
+                        <li>The <code>bulb-control</code> feed stores the new value.</li>
+                        <li>The Adafruit IO MQTT broker forwards it to the subscribed ESP32.</li>
+                        <li>The ESP32 reads the command and selects the corresponding output state.</li>
+                        <li>GPIO 2 changes state and the LED responds.</li>
+                    </ol>
+                    <div class="request-pair"><div><span class="request-method">FEED VALUE</span><code>ON</code><span class="request-result">GPIO 2 = HIGH</span></div><div><span class="request-method">FEED VALUE</span><code>OFF</code><span class="request-result">GPIO 2 = LOW</span></div></div>
+                    <h3>Example automation sequence</h3>
+                    <div class="implementation-steps"><span>Trigger occurs</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>IFTTT detects event</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Applet runs action</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Feed updates</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>ESP32 receives MQTT</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>LED responds</span></div>
+                </section>
+
+                <section class="content-section" id="ifttt">
+                    <p class="section-index">04 / AUTOMATION CONFIGURATION</p>
+                    <h2>IFTTT Applet setup</h2>
+                    <p>An IFTTT Applet follows the “If This, Then That” pattern. It contains a trigger and an action. When the trigger event occurs, IFTTT runs the action that sends the command to Adafruit IO.</p>
+                    <div class="setup-steps">
+                        <article><span>01</span><div><h3>Choose the trigger service</h3><p>Select the connected service or event that starts the automation. Record the real trigger used in your build below.</p></div></article>
+                        <article><span>02</span><div><h3>Configure the trigger event</h3><p>Set any event name, schedule, button, or service conditions required by the selected trigger.</p></div></article>
+                        <article><span>03</span><div><h3>Select the action</h3><p>Configure the IFTTT action to update the intended Adafruit IO feed with the appropriate command value.</p></div></article>
+                        <article><span>04</span><div><h3>Test the Applet</h3><p>Activate the trigger and verify that the expected value appears in the Adafruit IO feed before testing the ESP32 response.</p></div></article>
+                    </div>
+                    <div class="overview-grid dashboard-values">
+                        <div><span class="dashboard-state state-on"><i class="fa-solid fa-bolt" aria-hidden="true"></i> TRIGGER</span><h3>Your actual trigger</h3><p>[Add the IFTTT trigger used in your project]</p></div>
+                        <div><span class="dashboard-state state-off"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> ACTION</span><h3>Your configured action</h3><p>[Add the IFTTT action and the value it sends]</p></div>
+                    </div>
+                    <div class="credential-warning"><i class="fa-solid fa-lock" aria-hidden="true"></i><div><strong>Keep service credentials private</strong><p>Do not publish Webhooks keys, service tokens, Wi-Fi passwords, or your Adafruit IO AIO Key in this page or in a public repository.</p></div></div>
+                </section>
+
+                <section class="content-section" id="cloud">
+                    <p class="section-index">05 / CLOUD FEED</p>
+                    <h2>Adafruit IO feed</h2>
+                    <p>Adafruit IO provides the IoT cloud layer between the IFTTT automation and the ESP32. The feed stores the command produced by the Applet action. The ESP32 subscribes to the feed through MQTT and checks for new messages.</p>
+                    <div class="feed-callout"><span>MQTT FEED / TOPIC</span><code>Kixorr_28/feeds/bulb-control</code><p>The IFTTT action updates the <code>bulb-control</code> feed. The ESP32 listens to the matching account feed and reacts to <code>ON</code> or <code>OFF</code>.</p></div>
+                    <div class="overview-grid dashboard-values">
+                        <div><span class="dashboard-state state-on"><i class="fa-solid fa-toggle-on" aria-hidden="true"></i> ON</span><h3>Turn LED on</h3><p>Adafruit IO feed receives <code>ON</code>; ESP32 writes HIGH to GPIO 2.</p></div>
+                        <div><span class="dashboard-state state-off"><i class="fa-solid fa-toggle-off" aria-hidden="true"></i> OFF</span><h3>Turn LED off</h3><p>Adafruit IO feed receives <code>OFF</code>; ESP32 writes LOW to GPIO 2.</p></div>
+                    </div>
+                    <h3>Cloud connection parameters</h3>
+                    <div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Value / role</th></tr></thead><tbody>
+                        <tr><td>Adafruit IO broker</td><td><code>io.adafruit.com</code></td></tr>
+                        <tr><td>MQTT port</td><td><code>1883</code></td></tr>
+                        <tr><td>Adafruit IO username</td><td><code>Kixorr_28</code></td></tr>
+                        <tr><td>Feed</td><td><code>bulb-control</code></td></tr>
+                        <tr><td>Publisher</td><td>IFTTT action</td></tr>
+                        <tr><td>Subscriber</td><td>ESP32 MQTT client</td></tr>
+                        <tr><td>Payloads</td><td><code>ON</code> / <code>OFF</code></td></tr>
+                        <tr><td>Transport</td><td>Wi-Fi and internet</td></tr>
+                    </tbody></table></div>
+                </section>
+
+                <section class="content-section" id="hardware">
+                    <p class="section-index">06 / DEVICE SETUP</p>
+                    <h2>Hardware &amp; software</h2>
+                    <div class="table-wrap"><table><thead><tr><th>Hardware component</th><th>Purpose</th></tr></thead><tbody>
+                        <tr><td>ESP32 development board</td><td>Main IoT controller and MQTT subscriber</td></tr>
+                        <tr><td>LED</td><td>Output actuator controlled by the automation</td></tr>
+                        <tr><td>Resistor</td><td>Limits current through the LED</td></tr>
+                        <tr><td>Breadboard</td><td>Prototyping the circuit</td></tr>
+                        <tr><td>Jumper wires</td><td>Electrical connections</td></tr>
+                        <tr><td>USB cable</td><td>Power and programming</td></tr>
+                        <tr><td>Wi-Fi network</td><td>Internet connectivity for cloud services</td></tr>
+                    </tbody></table></div>
+                    <h3>Software &amp; cloud platforms</h3>
+                    <div class="table-wrap"><table><thead><tr><th>Platform / software</th><th>Purpose</th></tr></thead><tbody>
+                        <tr><td>Arduino IDE</td><td>ESP32 programming and upload</td></tr>
+                        <tr><td>ESP32 board package</td><td>ESP32 development support in Arduino IDE</td></tr>
+                        <tr><td>IFTTT</td><td>Trigger/action automation workflow</td></tr>
+                        <tr><td>Adafruit IO</td><td>Cloud feed and IoT communication platform</td></tr>
+                        <tr><td>MQTT</td><td>Cloud-to-device messaging protocol</td></tr>
+                        <tr><td>Adafruit MQTT library</td><td>MQTT client support for the ESP32 sketch</td></tr>
+                        <tr><td>Web browser</td><td>Configure IFTTT and inspect Adafruit IO</td></tr>
+                    </tbody></table></div>
+                    <div class="wiring-panel"><div class="wiring-heading"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i><h3>LED wiring reference</h3></div>
+                        <div class="wiring-row"><span>GPIO 2</span><b></b><span>Resistor → LED anode</span></div>
+                        <div class="wiring-row"><span>GND</span><b></b><span>LED cathode / circuit ground</span></div>
+                        <p class="note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Check your ESP32 board pinout. Use a current-limiting resistor with an external LED.</p>
+                    </div>
+                </section>
+
+                <section class="content-section" id="implementation">
+                    <p class="section-index">07 / FIRMWARE</p>
+                    <h2>ESP32 MQTT implementation</h2>
+                    <p class="section-intro">The device connects to Wi-Fi, authenticates with Adafruit IO, subscribes to the feed, and processes new values. The IFTTT platform updates the feed; the ESP32 sketch handles the cloud-to-device command.</p>
+                    <div class="credential-warning"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Credentials are placeholders</strong><p>Enter your credentials locally before upload. Keep Wi-Fi passwords, the AIO Key, and any IFTTT service tokens private.</p></div></div>
+                    <div class="code-window">
+                        <div class="code-title"><span><i class="fa-solid fa-code" aria-hidden="true"></i> ESP32_IFTTT_MQTT.ino</span><button class="copy-button" type="button" aria-label="Copy sketch"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></div>
+                        <pre><code id="mqtt-code">#include &lt;WiFi.h&gt;
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+
+#define WIFI_SSID "YOUR_WIFI_NAME"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+#define AIO_SERVER "io.adafruit.com"
+#define AIO_SERVERPORT 1883
+#define AIO_USERNAME "Kixorr_28"
+#define AIO_KEY "YOUR_ADAFRUIT_IO_KEY"
+#define LED_PIN 2
+
+WiFiClient client;
+Adafruit_MQTT_Client mqtt(
+  &amp;client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
+
+Adafruit_MQTT_Subscribe bulbControl = Adafruit_MQTT_Subscribe(
+  &amp;mqtt, AIO_USERNAME "/feeds/bulb-control");
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.println("Wi-Fi connected");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+  mqtt.subscribe(&amp;bulbControl);
+}
+
+void connectMQTT() {
+  int8_t result;
+  if (mqtt.connected()) return;
+
+  Serial.print("Connecting to Adafruit IO...");
+  while ((result = mqtt.connect()) != 0) {
+    Serial.println(mqtt.connectErrorString(result));
+    mqtt.disconnect();
+    delay(5000);
+  }
+  Serial.println("Connected to Adafruit IO");
+}
+
+void loop() {
+  connectMQTT();
+  mqtt.processPackets(1000);
+
+  Adafruit_MQTT_Subscribe *subscription;
+  while ((subscription = mqtt.readSubscription(1000))) {
+    if (subscription == &amp;bulbControl) {
+      String command = (char *)bulbControl.lastread;
+      command.trim();
+      Serial.print("Received: ");
+      Serial.println(command);
+
+      if (command == "ON") {
+        digitalWrite(LED_PIN, HIGH);
+        Serial.println("LED ON");
+      } else if (command == "OFF") {
+        digitalWrite(LED_PIN, LOW);
+        Serial.println("LED OFF");
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                    <div class="code-explanation"><h3>Important code sections</h3><ul>
+                        <li><code>WiFi.begin()</code> connects the ESP32 to an internet-enabled Wi-Fi network.</li>
+                        <li>The MQTT client uses the Adafruit IO host, port, username, and AIO Key to authenticate.</li>
+                        <li><code>mqtt.subscribe(&amp;bulbControl)</code> subscribes to the <code>Kixorr_28/feeds/bulb-control</code> feed.</li>
+                        <li><code>connectMQTT()</code> checks the broker connection and retries if it is disconnected.</li>
+                        <li><code>mqtt.readSubscription()</code> reads values delivered through the feed.</li>
+                        <li>The command string is compared with ON/OFF, then GPIO 2 is set HIGH/LOW.</li>
+                    </ul></div>
+                </section>
+
+                <section class="content-section" id="testing">
+                    <p class="section-index">08 / VERIFICATION</p>
+                    <h2>Testing plan</h2>
+                    <p>Test the system one connection at a time: confirm the trigger runs, verify the feed changes, and then check the MQTT message and physical output.</p>
+                    <div class="table-wrap"><table><thead><tr><th>Test</th><th>Input</th><th>Expected result</th><th>Status</th></tr></thead><tbody>
+                        <tr><td>Trigger activation</td><td>Configured event occurs</td><td>IFTTT runs the Applet action and Adafruit IO receives the expected value</td><td>Record result</td></tr>
+                        <tr><td>LED ON command</td><td><code>ON</code></td><td>ESP32 sets GPIO 2 HIGH and the LED turns on</td><td>Record result</td></tr>
+                        <tr><td>LED OFF command</td><td><code>OFF</code></td><td>ESP32 sets GPIO 2 LOW and the LED turns off</td><td>Record result</td></tr>
+                        <tr><td>Repeated trigger</td><td>Trigger activated multiple times</td><td>Each valid feed update is received and handled by the ESP32</td><td>Record result</td></tr>
+                    </tbody></table></div>
+                    <p class="note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Replace “Record result” with the observed outcome after running each test. Do not mark tests passed until verified on the physical setup.</p>
+                </section>
+
+                <section class="content-section" id="evidence">
+                    <p class="section-index">09 / EVIDENCE &amp; DEMONSTRATION</p>
+                    <h2>What to capture</h2>
+                    <div class="evidence-checklist"><h3>IFTTT configuration screenshots</h3>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> IFTTT account or workspace</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> Trigger configuration</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> Action configuration</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> Completed Applet overview</span>
+                    </div>
+                    <div class="evidence-checklist"><h3>Adafruit IO and hardware evidence</h3>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> Adafruit IO dashboard</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> <code>bulb-control</code> feed</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> Feed value after the trigger</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> ESP32 and LED hardware setup</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> LED ON and OFF states</span>
+                    </div>
+                    <h3>Project screenshots</h3>
+                    <p class="section-intro">IFTTT voice-trigger Applets and the Adafruit IO dashboard used in this automation.</p>
+                    <div class="evidence-gallery">
+                        <figure><a href="images/iot3%20images/IOT%20assignment%203.jpeg" target="_blank" rel="noopener noreferrer"><img src="images/iot3%20images/IOT%20assignment%203.jpeg" alt="IFTTT Applets for Google Assistant voice commands that update the bulb control feed" loading="lazy"></a><figcaption>IFTTT Applets: “Okay Google, activate on/off” trigger the bulb-control feed update.</figcaption></figure>
+                        <figure><a href="images/iot3%20images/Screenshot%202026-09-28%20154134.png" target="_blank" rel="noopener noreferrer"><img src="images/iot3%20images/Screenshot%202026-09-28%20154134.png" alt="Adafruit IO bulb control dashboard showing the ON state" loading="lazy"></a><figcaption>Adafruit IO dashboard for <code>Kixorr_28 / bulb-control</code>, shown with ON selected.</figcaption></figure>
+                    </div>
+                    <h3>Demonstration video</h3>
+                    <p class="section-intro">Show the entire automation chain rather than only the final LED state.</p>
+                    <div class="video-stage">
+                        <video id="task-video" controls preload="metadata" playsinline muted>
+                            <source src="videos/IOT%20assignment%203.mp4" type="video/mp4">
+                            Your browser does not support embedded video.
+                        </video>
+                        <div class="video-placeholder" id="video-placeholder" hidden>
+                            <span class="video-play-icon"><i class="fa-solid fa-play" aria-hidden="true"></i></span>
+                            <strong>Assignment 3 video could not be loaded</strong>
+                            <span>Check that this file is included with the portfolio:</span>
+                            <code>videos/IOT assignment 3.mp4</code>
+                        </div>
+                    </div>
+                    <p class="video-upload-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Assignment 3 demonstration video: <code>videos/IOT assignment 3.mp4</code>.</p>
+                    <ol class="data-flow-list">
+                        <li>Show the ESP32 hardware and Adafruit IO feed.</li>
+                        <li>Show the IFTTT Applet and activate the configured trigger.</li>
+                        <li>Show the Adafruit IO feed value update.</li>
+                        <li>Show the ESP32 receiving the MQTT command in Serial Monitor.</li>
+                        <li>Show the LED responding; repeat with the opposite value when applicable.</li>
+                    </ol>
+                </section>
+
+                <section class="content-section" id="challenges">
+                    <p class="section-index">10 / DEBUG NOTES</p>
+                    <h2>Challenges &amp; solutions</h2>
+                    <div class="challenge-list">
+                        <details><summary>IFTTT trigger did not run</summary><p>Review the selected service, event, and trigger conditions. Test the Applet workflow using the available test action.</p></details>
+                        <details><summary>Adafruit IO feed did not update</summary><p>Check the IFTTT action configuration, feed name, account selection, and command value being sent.</p></details>
+                        <details><summary>ESP32 did not receive the command</summary><p>Verify Wi-Fi internet access, MQTT connection status, subscription path, and feed name. Use Serial Monitor to check incoming values.</p></details>
+                        <details><summary>LED did not respond</summary><p>Check the configured GPIO pin, circuit wiring, LED polarity, and whether the received value exactly matches ON or OFF.</p></details>
+                        <details><summary>Cloud automation stopped working</summary><p>Confirm internet connectivity for the ESP32 and check that cloud credentials and service connections remain valid.</p></details>
+                    </div>
+                </section>
+
+                <section class="content-section reflection-section" id="reflection">
+                    <p class="section-index">11 / WHAT I LEARNED</p>
+                    <h2>Learning reflection</h2>
+                    <p>This task helped me understand how cloud-based IoT automation connects an event to a physical device. I learned how IFTTT uses a trigger/action Applet, how Adafruit IO provides a feed for the command, and how MQTT delivers the update to an ESP32. The workflow extends the previous dashboard-control task: instead of a user manually selecting a command, an external event can initiate the process.</p>
+                    <p>The project also reinforced the importance of internet connectivity, accurate feed configuration, correct MQTT subscriptions, protected credentials, and step-by-step testing across multiple services.</p>
+                    <div class="repository-note"><i class="fa-brands fa-github" aria-hidden="true"></i><div><strong>Project repository</strong><p>Repository link will be added when the project files are published.</p></div></div>
+                    <h3>Suggested repository structure</h3>
+                    <pre class="repo-tree"><code>Task-3-IFTTT-Adafruit-IO/
+|-- ESP32_IFTTT_MQTT.ino
+|-- README.md
+|-- circuit/
+|   `-- circuit-diagram.png
+|-- ifttt/
+|   |-- trigger-screenshot.png
+|   `-- applet-screenshot.png
+|-- adafruit-io/
+|   |-- dashboard.png
+|   `-- feed.png
+|-- photos/
+|   `-- hardware-setup.jpg
+`-- video/
+    `-- demo-link.txt</code></pre>
+                    <div class="final-result"><span class="section-index">FINAL RESULT</span><p>The completed workflow connects an external event to the ESP32 through IFTTT, Adafruit IO, and MQTT. IFTTT detects the trigger and updates the feed; the ESP32 receives the value and changes GPIO 2 so the LED responds. This demonstrates how online services and embedded hardware can work together in a cloud-connected automation system.</p><strong>Trigger → IFTTT → Adafruit IO → MQTT → ESP32 → GPIO → LED</strong></div>
+                    <a class="back-to-list" href="index.html#protosem"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Return to IoT assignments</a>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <footer class="task-footer"><span>Kishore RJ</span><span>MECHATRONICS &bull; EMBEDDED SYSTEMS &bull; IoT AUTOMATION</span></footer>
+    <script>
+        const taskVideo = document.querySelector('#task-video');
+        const videoPlaceholder = document.querySelector('#video-placeholder');
+        taskVideo.addEventListener('error', () => {
+            taskVideo.hidden = true;
+            videoPlaceholder.hidden = false;
+        });
+
+        const copyButton = document.querySelector('.copy-button');
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(document.querySelector('#mqtt-code').innerText);
+                copyButton.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
+                copyButton.setAttribute('aria-label', 'Sketch copied');
+            } catch {
+                copyButton.setAttribute('aria-label', 'Clipboard access is unavailable');
+            }
+        });
+    </script>
+</body>
+</html>

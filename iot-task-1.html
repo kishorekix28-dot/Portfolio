@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ESP32 local Wi-Fi web server assignment for browser-based LED control.">
+    <title>Task 01 | ESP32 Web Server &amp; LED Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="stylesheet" href="iot-task-1.css">
+</head>
+<body>
+    <header class="task-nav">
+        <a class="brand" href="index.html#protosem"><span class="brand-mark">K</span> Kishore RJ</a>
+        <a class="back-link" href="index.html#protosem"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to IoT assignments</a>
+    </header>
+
+    <main>
+        <section class="task-hero" aria-labelledby="task-title">
+            <div class="hero-grid" aria-hidden="true"></div>
+            <div class="hero-inner">
+                <p class="eyebrow"><span class="pulse-dot"></span> IOT WORKS / TASK 01</p>
+                <p class="hero-overline">ESP32 &bull; WI-FI &bull; HTTP &bull; GPIO</p>
+                <h1 id="task-title">ESP32 Web Server<br><span>&amp; HTML LED Control</span></h1>
+                <p class="hero-copy">A local web interface that turns a browser click into a physical output: connect, request, respond.</p>
+                <div class="hero-flow" aria-label="System flow">
+                    <span>Browser</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>Wi-Fi</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>ESP32</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>LED</span>
+                </div>
+            </div>
+            <div class="hero-index" aria-hidden="true">01</div>
+        </section>
+
+        <div class="page-layout">
+            <aside class="side-rail" aria-label="Assignment sections">
+                <p>ON THIS PAGE</p>
+                <a href="#overview">01 Overview</a>
+                <a href="#system">02 System design</a>
+                <a href="#hardware">03 Hardware</a>
+                <a href="#implementation">04 Implementation</a>
+                <a href="#evidence">05 Evidence</a>
+                <a href="#reflection">06 Reflection</a>
+            </aside>
+
+            <article class="task-content">
+                <section class="content-section" id="overview">
+                    <p class="section-index">01 / THE CHALLENGE</p>
+                    <h2>Overview</h2>
+                    <div class="overview-grid">
+                        <div>
+                            <h3>Objective</h3>
+                            <p>Develop a simple IoT system using an ESP32 that hosts a web server and lets a user control an LED through a browser over Wi-Fi.</p>
+                        </div>
+                        <div>
+                            <h3>Problem being addressed</h3>
+                            <p>An LED is usually controlled with a physical switch or pre-programmed logic. This project demonstrates remote control through a web interface, without a physical switch.</p>
+                        </div>
+                    </div>
+                    <div class="result-callout">
+                        <span class="callout-icon"><i class="fa-solid fa-circle-nodes" aria-hidden="true"></i></span>
+                        <div><strong>Project summary</strong><p>The ESP32 joins a Wi-Fi network and serves an HTML page. ON and OFF controls send HTTP requests that change the LED's GPIO state.</p></div>
+                    </div>
+                </section>
+
+                <section class="content-section" id="system">
+                    <p class="section-index">02 / SYSTEM DESIGN</p>
+                    <h2>From browser to output</h2>
+                    <p class="section-intro">The browser and ESP32 communicate over the same local network using HTTP.</p>
+                    <div class="flow-diagram" aria-label="Laptop or mobile browser connects through Wi-Fi to ESP32 web server, GPIO output, then LED">
+                        <div class="flow-node"><i class="fa-solid fa-laptop" aria-hidden="true"></i><strong>Browser</strong><small>ON / OFF click</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>HTTP</small></span>
+                        <div class="flow-node"><i class="fa-solid fa-wifi" aria-hidden="true"></i><strong>Wi-Fi</strong><small>Local network</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Request</small></span>
+                        <div class="flow-node emphasis"><i class="fa-solid fa-microchip" aria-hidden="true"></i><strong>ESP32</strong><small>Web server</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>GPIO 2</small></span>
+                        <div class="flow-node led-node"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><strong>LED</strong><small>ON / OFF</small></div>
+                    </div>
+                    <div class="request-pair">
+                        <div><span class="request-method">GET</span><code>/LED=ON</code><span class="request-result">GPIO HIGH</span></div>
+                        <div><span class="request-method">GET</span><code>/LED=OFF</code><span class="request-result">GPIO LOW</span></div>
+                    </div>
+                    <h3>Core concepts</h3>
+                    <div class="concept-grid">
+                        <div class="concept"><span>01</span><h4>ESP32 web server</h4><p>Hosts the HTML page and processes browser requests on port 80.</p></div>
+                        <div class="concept"><span>02</span><h4>Wi-Fi</h4><p>Connects the ESP32 and browser device to the same local network.</p></div>
+                        <div class="concept"><span>03</span><h4>HTTP request</h4><p>The URL path identifies whether the user requested LED ON or LED OFF.</p></div>
+                        <div class="concept"><span>04</span><h4>HTML interface</h4><p>Two browser controls send the corresponding request to the ESP32.</p></div>
+                    </div>
+                    <h3>Data flow</h3>
+                    <ol class="data-flow-list">
+                        <li>ESP32 connects to Wi-Fi and starts its web server.</li>
+                        <li>The IP address is read from the Arduino Serial Monitor.</li>
+                        <li>The user opens that address in a browser on the same network.</li>
+                        <li>ESP32 serves the LED control page.</li>
+                        <li>A button click sends <code>/LED=ON</code> or <code>/LED=OFF</code>.</li>
+                        <li>The ESP32 updates GPIO 2 and returns the page.</li>
+                    </ol>
+                </section>
+
+                <section class="content-section" id="hardware">
+                    <p class="section-index">03 / BUILD NOTES</p>
+                    <h2>Hardware &amp; setup</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Component</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                <tr><td>ESP32 development board</td><td>IoT controller and local web server</td></tr>
+                                <tr><td>LED</td><td>Output device controlled through the webpage</td></tr>
+                                <tr><td>Current-limiting resistor</td><td>Limits LED current and protects the circuit</td></tr>
+                                <tr><td>Breadboard &amp; jumper wires</td><td>Prototyping and electrical connections</td></tr>
+                                <tr><td>USB cable</td><td>Programming and board power</td></tr>
+                                <tr><td>Wi-Fi router or hotspot</td><td>Provides local wireless connectivity</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="wiring-panel">
+                        <div class="wiring-heading"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i><h3>Wiring reference</h3></div>
+                        <div class="wiring-row"><span>GPIO 2</span><b></b><span>LED anode through resistor</span></div>
+                        <div class="wiring-row"><span>GND</span><b></b><span>LED cathode / circuit ground</span></div>
+                        <p class="note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Some ESP32 boards use a different built-in LED pin. Confirm the board's pinout and adjust the sketch before wiring.</p>
+                    </div>
+                    <p class="logic-note"><strong>Output logic:</strong> GPIO HIGH turns the LED on; GPIO LOW turns it off. A resistor is required with an external LED.</p>
+                </section>
+
+                <section class="content-section" id="implementation">
+                    <p class="section-index">04 / FIRMWARE</p>
+                    <h2>Implementation</h2>
+                    <div class="implementation-steps">
+                        <span>Set Wi-Fi credentials</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        <span>Initialize GPIO</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        <span>Start server</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        <span>Handle request</span>
+                    </div>
+                    <p class="section-intro">The sketch below is formatted from the supplied implementation. Replace the Wi-Fi placeholders locally before uploading; never publish real credentials.</p>
+                    <div class="code-window">
+                        <div class="code-title"><span><i class="fa-solid fa-code" aria-hidden="true"></i> ESP32_Web_Server.ino</span><button class="copy-button" type="button" aria-label="Copy sketch"><i class="fa-regular fa-copy" aria-hidden="true"></i></button></div>
+                        <pre><code id="esp32-code">#include &lt;WiFi.h&gt;
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+WiFiServer server(80);
+const int ledPin = 2;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+    Serial.println("\nWi-Fi connected");
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+}
+
+void loop() {
+  WiFiClient client = server.available();
+  if (!client) return;
+
+    String request = client.readStringUntil('\r');
+  client.flush();
+
+  if (request.indexOf("GET /LED=ON") &gt;= 0) {
+    digitalWrite(ledPin, HIGH);
+  }
+  if (request.indexOf("GET /LED=OFF") &gt;= 0) {
+    digitalWrite(ledPin, LOW);
+  }
+
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println("Connection: close");
+  client.println();
+  client.println("&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;");
+  client.println("&lt;meta name='viewport' content='width=device-width, initial-scale=1'&gt;");
+  client.println("&lt;title&gt;ESP32 LED Control&lt;/title&gt;&lt;/head&gt;&lt;body&gt;");
+  client.println("&lt;h1&gt;ESP32 LED Control&lt;/h1&gt;");
+  client.println("&lt;p&gt;&lt;a href='/LED=ON'&gt;&lt;button&gt;LED ON&lt;/button&gt;&lt;/a&gt;&lt;/p&gt;");
+  client.println("&lt;p&gt;&lt;a href='/LED=OFF'&gt;&lt;button&gt;LED OFF&lt;/button&gt;&lt;/a&gt;&lt;/p&gt;");
+  client.println("&lt;/body&gt;&lt;/html&gt;");
+  delay(1);
+  client.stop();
+}</code></pre>
+                    </div>
+                    <div class="code-explanation">
+                        <h3>What the key parts do</h3>
+                        <ul>
+                            <li><code>WiFi.begin()</code> joins the configured wireless network.</li>
+                            <li><code>WiFiServer server(80)</code> listens on the standard HTTP port.</li>
+                            <li>The request path selects HIGH or LOW for the LED GPIO.</li>
+                            <li>The response returns a small HTML page with ON and OFF links.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="content-section" id="evidence">
+                    <p class="section-index">05 / TASK DEMONSTRATION</p>
+                    <h2>Assignment video</h2>
+                    <p class="section-intro">Show the ESP32 joining Wi-Fi, opening the control page, and switching the LED on and off.</p>
+                    <div class="video-stage">
+                        <video id="demo-video" controls preload="metadata" playsinline muted>
+                            <source src="videos/IOT%20assignment%201.mp4" type="video/mp4">
+                            Your browser does not support embedded video.
+                        </video>
+                        <div class="video-placeholder" id="video-placeholder" hidden>
+                            <span class="video-play-icon"><i class="fa-solid fa-play" aria-hidden="true"></i></span>
+                            <strong>Loading assignment video...</strong>
+                            <span>IoT Assignment 1 demonstration</span>
+                        </div>
+                    </div>
+                    <p class="video-upload-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Playing <code>videos/IOT assignment 1.mp4</code>. Keep this video in the <code>videos</code> folder when publishing the portfolio.</p>
+                    <div class="evidence-checklist">
+                        <h3>Recommended implementation evidence</h3>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> ESP32 board and LED wiring</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> Browser page with the ESP32 local IP</span>
+                        <span><i class="fa-regular fa-square" aria-hidden="true"></i> LED ON and OFF states</span>
+                    </div>
+                </section>
+
+                <section class="content-section" id="troubleshooting">
+                    <p class="section-index">06 / DEBUG NOTES</p>
+                    <h2>Challenges &amp; fixes</h2>
+                    <div class="challenge-list">
+                        <details><summary>ESP32 could not connect to Wi-Fi</summary><p>Recheck the SSID and password, then ensure the board is within network range.</p></details>
+                        <details><summary>Webpage could not be opened</summary><p>Use the current IP printed in Serial Monitor and connect the browser device to the same Wi-Fi network.</p></details>
+                        <details><summary>LED did not respond</summary><p>Check the GPIO pin configuration, LED polarity, resistor wiring, and request paths.</p></details>
+                        <details><summary>IP address changed after reconnecting</summary><p>Read the current IP from Serial Monitor each time the ESP32 joins the network.</p></details>
+                    </div>
+                </section>
+
+                <section class="content-section reflection-section" id="reflection">
+                    <p class="section-index">07 / WHAT I LEARNED</p>
+                    <h2>Reflection</h2>
+                    <p>This task introduced the basic workflow of a web-controlled IoT device. I learned how an ESP32 can join Wi-Fi, serve a page, receive HTTP requests, and change a physical GPIO output. It built practical experience with embedded C++, HTML, HTTP, and local-network communication, forming a base for future sensor, cloud, and dashboard projects.</p>
+                    <div class="repository-note"><i class="fa-brands fa-github" aria-hidden="true"></i><div><strong>Project repository</strong><p>Repository link will be added when the project files are published.</p></div></div>
+                    <a class="back-to-list" href="index.html#protosem"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Return to IoT assignments</a>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <footer class="task-footer"><span>Kishore RJ</span><span>MECHATRONICS &bull; EMBEDDED SYSTEMS &bull; IoT</span></footer>
+
+    <script>
+        const demoVideo = document.querySelector('#demo-video');
+        const videoPlaceholder = document.querySelector('#video-placeholder');
+        demoVideo.addEventListener('error', () => {
+            demoVideo.hidden = true;
+            videoPlaceholder.hidden = false;
+            videoPlaceholder.querySelector('strong').textContent = 'Video could not be loaded';
+            videoPlaceholder.querySelector('span:not(.video-play-icon)').textContent = 'Check that videos/IOT assignment 1.mp4 is included with the portfolio files.';
+        });
+
+        const copyButton = document.querySelector('.copy-button');
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(document.querySelector('#esp32-code').innerText);
+                copyButton.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
+                copyButton.setAttribute('aria-label', 'Sketch copied');
+            } catch {
+                copyButton.setAttribute('aria-label', 'Clipboard access is unavailable');
+            }
+        });
+    </script>
+</body>
+</html>

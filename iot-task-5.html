@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Extend the Firebase ESP32 environment monitor with remote and LDR-automatic home appliance control.">
+    <title>Task 05 | Firebase-Based Home Automation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="stylesheet" href="iot-task-1.css">
+</head>
+<body>
+    <header class="task-nav">
+        <a class="brand" href="index.html#protosem"><span class="brand-mark">K</span> Kishore RJ</a>
+        <a class="back-link" href="index.html#protosem"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to IoT assignments</a>
+    </header>
+
+    <main>
+        <section class="task-hero" aria-labelledby="task-title">
+            <div class="hero-grid" aria-hidden="true"></div>
+            <div class="hero-inner">
+                <p class="eyebrow"><span class="pulse-dot"></span> IOT WORKS / TASK 05</p>
+                <p class="hero-overline">FIREBASE &bull; ESP32 &bull; RELAY &bull; HOME AUTOMATION</p>
+                <h1 id="task-title">Firebase-Based<br><span>Home Automation</span></h1>
+                <p class="hero-copy">Extend the Task 4 Firebase monitoring platform with remote manual control and LDR-based automatic switching of an appliance.</p>
+                <div class="hero-flow" aria-label="Home automation system flow">
+                    <span>Dashboard</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>Firebase</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>ESP32</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>Relay</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    <span>Bulb</span>
+                </div>
+            </div>
+            <div class="hero-index" aria-hidden="true">05</div>
+        </section>
+
+        <div class="page-layout">
+            <aside class="side-rail" aria-label="Assignment sections">
+                <p>ON THIS PAGE</p>
+                <a href="#overview">01 Overview</a>
+                <a href="#relay">02 Relay integration</a>
+                <a href="#firebase">03 Firebase structure</a>
+                <a href="#manual">04 Manual control</a>
+                <a href="#automatic">05 Automatic mode</a>
+                <a href="#status">06 Status &amp; history</a>
+                <a href="#dashboard">07 Dashboard</a>
+                <a href="#evidence">08 Evidence &amp; video</a>
+                <a href="#testing">09 Testing</a>
+                <a href="#safety">10 Safety</a>
+                <a href="#reflection">11 Final outcome</a>
+            </aside>
+
+            <article class="task-content">
+                <section class="content-section" id="overview">
+                    <p class="section-index">01 / PROJECT OVERVIEW</p>
+                    <h2>Task 5 extends Task 4</h2>
+                    <div class="overview-grid">
+                        <div><h3>Starting point</h3><p>This assignment builds on the Firebase environment-monitoring platform from Task 4. The existing ESP32 sensor readings, Firebase project, authentication, database, and dashboard remain the foundation.</p></div>
+                        <div><h3>New capability</h3><p>Add an ESP32-controlled relay and dashboard settings so a bulb can be operated remotely in MANUAL mode or switched automatically from the LDR reading in AUTO mode.</p></div>
+                    </div>
+                    <div class="result-callout"><span class="callout-icon"><i class="fa-solid fa-house-signal" aria-hidden="true"></i></span><div><strong>Project summary</strong><p>Firebase stores the requested mode and bulb state. The ESP32 reads those values, applies manual or threshold-based logic, switches the relay, then writes the actual bulb state, operating mode, and LDR threshold back to Firebase.</p></div></div>
+                    <div class="flow-diagram" aria-label="Dashboard and LDR provide inputs through Firebase and ESP32 logic to a relay and bulb">
+                        <div class="flow-node"><i class="fa-solid fa-table-columns" aria-hidden="true"></i><strong>Dashboard</strong><small>Mode / bulb request</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Firebase</small></span>
+                        <div class="flow-node"><i class="fa-solid fa-database" aria-hidden="true"></i><strong>Firebase</strong><small>Control + readings</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Wi-Fi</small></span>
+                        <div class="flow-node emphasis"><i class="fa-solid fa-microchip" aria-hidden="true"></i><strong>ESP32</strong><small>MANUAL / AUTO logic</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>GPIO 26</small></span>
+                        <div class="flow-node"><i class="fa-solid fa-toggle-on" aria-hidden="true"></i><strong>Relay</strong><small>Appliance switch</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Switched load</small></span>
+                        <div class="flow-node led-node"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><strong>Bulb</strong><small>ON / OFF</small></div>
+                    </div>
+                    <p class="section-intro">The DHT11 and LDR monitoring from Task 4 continues. This task adds appliance actuation and records the resulting automation state alongside the sensor history.</p>
+                </section>
+
+                <section class="content-section" id="relay">
+                    <p class="section-index">02 / ACTUATOR INTEGRATION</p>
+                    <h2>Add relay-based appliance control</h2>
+                    <p>Connect a single-channel relay module to the ESP32 as the low-voltage control interface for the appliance. In the provided plan, GPIO 26 drives the relay input.</p>
+                    <div class="implementation-steps"><span>ESP32 GPIO 26</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Relay IN</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Relay contacts</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>230 V bulb</span></div>
+                    <div class="concept-grid">
+                        <div class="concept"><span>CONTROL SIDE</span><h4>ESP32 signal</h4><p>The ESP32 output changes the relay-module input according to the selected mode and calculated bulb state.</p></div>
+                        <div class="concept"><span>LOAD SIDE</span><h4>Relay contacts</h4><p>Properly rated relay contacts switch the appliance circuit; the relay rating must suit the actual load.</p></div>
+                    </div>
+                    <div class="credential-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><div><strong>Mains safety</strong><p>230 V mains wiring can cause fatal electric shock or fire. Disconnect power before wiring. Use a correctly rated relay in an insulated enclosure, keep mains wiring isolated from low-voltage electronics, and have the mains side wired or inspected by a qualified person.</p></div></div>
+                </section>
+
+                <section class="content-section" id="firebase">
+                    <p class="section-index">03 / FIREBASE EXTENSION</p>
+                    <h2>Extend the Task 4 database</h2>
+                    <p>Keep the existing <code>/current</code> sensor data and <code>/history</code> records. Add a <code>/control</code> node for dashboard requests, and extend current status and history with the actuator state, selected mode, and active LDR threshold.</p>
+                    <pre class="repo-tree"><code>/
+|-- control
+|   |-- mode: "MANUAL" | "AUTO"
+|   `-- bulb: true | false
+|-- current
+|   |-- temperature: 28.4
+|   |-- humidity: 52
+|   |-- ldr: 3250
+|   |-- bulbState: true
+|   |-- mode: "AUTO"
+|   `-- ldrThreshold: 3000
+`-- history
+    `-- record_001
+        |-- timestamp: 1758956400
+        |-- temperature: 28.4
+        |-- humidity: 52
+        |-- ldr: 3250
+        |-- bulbState: true
+        |-- mode: "AUTO"
+        `-- ldrThreshold: 3000</code></pre>
+                    <div class="table-wrap"><table><thead><tr><th>Firebase path</th><th>Stored value</th><th>Used by</th></tr></thead><tbody>
+                        <tr><td><code>/control/mode</code></td><td><code>MANUAL</code> or <code>AUTO</code></td><td>Dashboard selection, read by ESP32</td></tr>
+                        <tr><td><code>/control/bulb</code></td><td><code>true</code> or <code>false</code></td><td>Manual-mode request from dashboard</td></tr>
+                        <tr><td><code>/current/bulbState</code></td><td>Actual current bulb state</td><td>Dashboard status display</td></tr>
+                        <tr><td><code>/current/mode</code></td><td>Active operating mode</td><td>Dashboard status display</td></tr>
+                        <tr><td><code>/current/ldrThreshold</code></td><td>Configured threshold, normally 3000</td><td>Dashboard status display</td></tr>
+                        <tr><td><code>/history</code></td><td>Timestamped readings and automation state</td><td>History table and analysis</td></tr>
+                    </tbody></table></div>
+                    <div class="credential-warning"><i class="fa-solid fa-lock" aria-hidden="true"></i><div><strong>Keep Firebase protected</strong><p>Require Firebase Authentication for dashboard access and configure Realtime Database rules for authorized users. Do not expose private Firebase credentials or leave production rules unrestricted.</p></div></div>
+                </section>
+
+                <section class="content-section" id="manual">
+                    <p class="section-index">04 / USER-REQUESTED CONTROL</p>
+                    <h2>MANUAL mode</h2>
+                    <p>When the selected mode is <code>MANUAL</code>, the dashboard's ON/OFF control writes a boolean to <code>/control/bulb</code>. The ESP32 reads the request and updates the relay output.</p>
+                    <div class="flow-diagram" aria-label="Dashboard manual bulb request is stored in Firebase, read by ESP32, and applied to the relay and bulb">
+                        <div class="flow-node"><i class="fa-solid fa-table-columns" aria-hidden="true"></i><strong>Dashboard</strong><small>User selects ON/OFF</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Write boolean</small></span>
+                        <div class="flow-node"><i class="fa-solid fa-database" aria-hidden="true"></i><strong>Firebase</strong><small>/control/bulb</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>Read request</small></span>
+                        <div class="flow-node emphasis"><i class="fa-solid fa-microchip" aria-hidden="true"></i><strong>ESP32</strong><small>MANUAL mode</small></div>
+                        <span class="flow-connector"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><small>GPIO 26</small></span>
+                        <div class="flow-node led-node"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><strong>Relay → bulb</strong><small>Requested state</small></div>
+                    </div>
+                    <div class="request-pair"><div><span class="request-method">/control/bulb</span><code>true</code><span class="request-result">BULB ON</span></div><div><span class="request-method">/control/bulb</span><code>false</code><span class="request-result">BULB OFF</span></div></div>
+                </section>
+
+                <section class="content-section" id="automatic">
+                    <p class="section-index">05 / SENSOR-DRIVEN CONTROL</p>
+                    <h2>AUTO mode with an LDR threshold</h2>
+                    <p>When mode is <code>AUTO</code>, the ESP32 compares the LDR reading against the configured threshold. For this project requirement, values above 3000 switch the bulb ON; values at or below 3000 switch it OFF.</p>
+                    <div class="request-pair"><div><span class="request-method">LDR</span><code>&gt; 3000</code><span class="request-result">BULB ON</span></div><div><span class="request-method">LDR</span><code>&le; 3000</code><span class="request-result">BULB OFF</span></div></div>
+                    <div class="feed-callout"><span>CONFIGURED THRESHOLD</span><code>ldrThreshold = 3000</code><p>The active threshold is stored in Firebase and reported in the current status so the dashboard can show the decision boundary being used.</p></div>
+                    <div class="implementation-steps"><span>Read LDR</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Compare with 3000</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Set relay state</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Update Firebase status</span></div>
+                    <p>MANUAL mode follows the user's dashboard request. AUTO mode ignores the manual request while active and determines the output from the LDR comparison. Calibrate the threshold against readings from the actual sensor and environment.</p>
+                </section>
+
+                <section class="content-section" id="status">
+                    <p class="section-index">06 / DEVICE STATUS &amp; HISTORY</p>
+                    <h2>Report the operating condition</h2>
+                    <p>After applying the selected control logic, the ESP32 writes the actual state back to Firebase. The dashboard can then distinguish the user's requested value from the current device status.</p>
+                    <div class="overview-grid dashboard-values">
+                        <div><span class="dashboard-state state-on"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> BULB STATE</span><h3><code>/current/bulbState</code></h3><p>Boolean indicating the relay/bulb state reported by the ESP32.</p></div>
+                        <div><span class="dashboard-state state-off"><i class="fa-solid fa-sliders" aria-hidden="true"></i> OPERATING MODE</span><h3><code>/current/mode</code></h3><p>Shows whether the active behavior is MANUAL or AUTO.</p></div>
+                    </div>
+                    <p>Also publish <code>/current/ldrThreshold</code>. Extend each history record with timestamp, temperature, humidity, LDR value, bulb state, operating mode, and LDR threshold. This makes it possible to review how environmental conditions related to appliance operation.</p>
+                </section>
+
+                <section class="content-section" id="dashboard">
+                    <p class="section-index">07 / HOME AUTOMATION DASHBOARD</p>
+                    <h2>Monitoring, controls &amp; analysis</h2>
+                    <div class="concept-grid">
+                        <div class="concept"><span>ENVIRONMENT</span><h4>Live sensor readings</h4><p>Temperature, humidity, and LDR value from Firebase current data.</p></div>
+                        <div class="concept"><span>APPLIANCE</span><h4>Bulb and mode</h4><p>Bulb ON/OFF request, MANUAL/AUTO selector, and actual bulb status.</p></div>
+                        <div class="concept"><span>AUTOMATION</span><h4>LDR threshold</h4><p>Display the active threshold and the automatic switching rule.</p></div>
+                        <div class="concept"><span>ANALYSIS</span><h4>History</h4><p>Historical table, sensor graphs, bulb-state history, and CSV export.</p></div>
+                    </div>
+                    <h3>Realtime update path</h3>
+                    <div class="implementation-steps"><span>ESP32 updates Firebase</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Firebase listener receives values</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Dashboard refreshes status and readings</span></div>
+                    <p>The dashboard continues to use the Task 4 authentication and monitoring flow. Add home-automation controls to the existing signed-in dashboard rather than creating a separate account or database.</p>
+                </section>
+
+                <section class="content-section" id="history">
+                    <p class="section-index">08 / EXTENDED HISTORY</p>
+                    <h2>Record environmental and appliance state</h2>
+                    <p>Extend the Task 4 history records with automation data so each record captures the conditions and operating decision together.</p>
+                    <pre class="repo-tree"><code>/history/record_001
+{
+  "timestamp": 1758956400,
+  "temperature": 28.4,
+  "humidity": 52,
+  "ldr": 3250,
+  "bulbState": true,
+  "mode": "AUTO",
+  "ldrThreshold": 3000
+}</code></pre>
+                    <div class="setup-steps">
+                        <article><span>01</span><div><h3>Historical table</h3><p>Show timestamp, temperature, humidity, LDR, bulb state, operating mode, and threshold.</p></div></article>
+                        <article><span>02</span><div><h3>Data visualization</h3><p>Plot temperature, humidity, and LDR over time; include bulb state history for context.</p></div></article>
+                        <article><span>03</span><div><h3>CSV export</h3><p>Export the extended records for analysis outside the dashboard.</p></div></article>
+                    </div>
+                </section>
+
+                <section class="content-section" id="evidence">
+                    <p class="section-index">09 / PROJECT EVIDENCE</p>
+                    <h2>Task 5 dashboard images</h2>
+                    <p class="section-intro">These screenshots show the existing Task 4 launch page and dashboard that Task 5 extends with appliance controls and operating modes.</p>
+                    <div class="evidence-gallery">
+                        <figure><a href="images/iot%205%20images/Screenshot%202026-09-28%20162553.png" target="_blank" rel="noopener noreferrer"><img src="images/iot%205%20images/Screenshot%202026-09-28%20162553.png" alt="Launch page for the ESP32 environment monitoring system" loading="lazy"></a><figcaption>Existing monitoring system launch page: starting point for Task 5.</figcaption></figure>
+                        <figure><a href="images/iot%205%20images/Screenshot%202026-09-28%20162639.png" target="_blank" rel="noopener noreferrer"><img src="images/iot%205%20images/Screenshot%202026-09-28%20162639.png" alt="Firebase dashboard showing current sensor readings and appliance controls" loading="lazy"></a><figcaption>Existing Firebase dashboard with sensor data and light controls; Task 5 extends it with MANUAL/AUTO state and threshold reporting.</figcaption></figure>
+                    </div>
+                    <h3>Demonstration video</h3>
+                    <p class="section-intro">The provided clip is the Task 4 monitoring demonstration. Task 5-specific relay and mode behavior should be recorded in a separate update when available.</p>
+                    <div class="video-stage">
+                        <video id="task-video" controls preload="metadata" playsinline muted>
+                            <source src="videos/IOT%20assignment%204.mp4" type="video/mp4">
+                            Your browser does not support embedded video.
+                        </video>
+                    </div>
+                    <p class="video-upload-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Playing the supplied Task 4 video as baseline project context. It does not demonstrate the new Task 5 relay and MANUAL/AUTO behavior.</p>
+                </section>
+
+                <section class="content-section" id="testing">
+                    <p class="section-index">10 / VALIDATION PLAN</p>
+                    <h2>Test the home-automation system</h2>
+                    <div class="table-wrap"><table><thead><tr><th>Test</th><th>Input</th><th>Expected result</th><th>Status</th></tr></thead><tbody>
+                        <tr><td>Manual ON</td><td>MANUAL mode, bulb request <code>true</code></td><td>ESP32 switches relay on and reports bulbState=true</td><td>Record result</td></tr>
+                        <tr><td>Manual OFF</td><td>MANUAL mode, bulb request <code>false</code></td><td>ESP32 switches relay off and reports bulbState=false</td><td>Record result</td></tr>
+                        <tr><td>Automatic ON</td><td>AUTO mode, LDR &gt; 3000</td><td>Relay/bulb on; current mode, state, and threshold reported</td><td>Record result</td></tr>
+                        <tr><td>Automatic OFF</td><td>AUTO mode, LDR &le; 3000</td><td>Relay/bulb off; current mode, state, and threshold reported</td><td>Record result</td></tr>
+                        <tr><td>History logging</td><td>Operate in both modes</td><td>History records include readings, state, mode, and threshold</td><td>Record result</td></tr>
+                        <tr><td>Dashboard</td><td>Switch modes and update bulb request</td><td>Requested controls and reported state display correctly</td><td>Record result</td></tr>
+                    </tbody></table></div>
+                    <p class="note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Verify mains-side relay operation safely. Disconnect power before wiring; use a properly rated, enclosed module and qualified help for mains connections.</p>
+                </section>
+
+                <section class="content-section" id="safety">
+                    <p class="section-index">11 / ELECTRICAL SAFETY</p>
+                    <h2>Relay and mains precautions</h2>
+                    <div class="credential-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><div><strong>230 V mains can cause fatal shock or fire</strong><p>Disconnect mains power before wiring. Use a relay rated for the load in an insulated enclosure, maintain isolation between mains and low-voltage electronics, and have mains wiring installed or inspected by a qualified person. Do not handle exposed live wiring during testing.</p></div></div>
+                    <p>The ESP32 GPIO is a low-voltage control signal only. Do not connect a mains conductor directly to an ESP32 pin.</p>
+                </section>
+
+                <section class="content-section reflection-section" id="reflection">
+                    <p class="section-index">12 / TASK 5 OUTCOME</p>
+                    <h2>Final system</h2>
+                    <div class="concept-grid">
+                        <div class="concept"><span>BASE PLATFORM</span><h4>Task 4 Firebase</h4><p>Reuse authentication, sensor monitoring, Realtime Database, and the web dashboard.</p></div>
+                        <div class="concept"><span>NEW CONTROL</span><h4>Manual + AUTO</h4><p>Dashboard requests in MANUAL; LDR threshold decisions in AUTO.</p></div>
+                        <div class="concept"><span>DEVICE STATUS</span><h4>Reported state</h4><p>Store bulbState, mode, and ldrThreshold in current data.</p></div>
+                        <div class="concept"><span>ANALYSIS</span><h4>Extended history</h4><p>Correlate environmental readings with appliance state over time.</p></div>
+                    </div>
+                    <div class="final-result"><span class="section-index">FINAL OUTCOME</span><p>The Task 4 Firebase IoT platform is extended into a home-automation system. Users can select MANUAL or AUTO mode from the dashboard. In MANUAL mode, Firebase carries the bulb request; in AUTO mode, the ESP32 compares the LDR reading with 3000. The resulting bulb state, mode, and threshold are reported to Firebase and added to historical data for analysis.</p><strong>Dashboard / LDR → Firebase → ESP32 → Relay → Appliance</strong></div>
+                    <a class="back-to-list" href="index.html#protosem"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Return to IoT assignments</a>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <footer class="task-footer"><span>Kishore RJ</span><span>MECHATRONICS &bull; EMBEDDED SYSTEMS &bull; HOME AUTOMATION</span></footer>
+    <script>
+        const taskVideo = document.querySelector('#task-video');
+        taskVideo.addEventListener('error', () => {
+            taskVideo.insertAdjacentHTML('afterend', '<p class="video-upload-note">The Task 4 demonstration video could not be loaded. Confirm <code>videos/IOT assignment 4.mp4</code> is included with the portfolio.</p>');
+            taskVideo.hidden = true;
+        });
+    </script>
+</body>
+</html>
