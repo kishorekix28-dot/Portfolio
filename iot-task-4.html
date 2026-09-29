@@ -109,7 +109,6 @@
     |   |-- ldr: 2038
     |   `-- timestamp: 1758956400
     `-- ...</code></pre>
-                    <div class="credential-warning"><i class="fa-solid fa-lock" aria-hidden="true"></i><div><strong>Protect Firebase credentials and access</strong><p>Use Firebase Authentication to gate dashboard access. Configure Realtime Database rules so only authenticated, authorized users can access data. Do not expose private credentials or leave production database rules open.</p></div></div>
                     <h3>Authentication flow</h3>
                     <div class="implementation-steps"><span>User opens launch page</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Login page</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Firebase Authentication</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Dashboard on success</span></div>
                     <p>When sign-in fails, the application should show a clear error and keep protected dashboard content inaccessible. The dashboard should provide a logout action that ends the authenticated session.</p>
@@ -134,7 +133,6 @@
                         <tr><td>Firebase ESP Client</td><td>ESP32 authentication and Realtime Database communication</td></tr>
                         <tr><td>Arduino IDE</td><td>Firmware editing and upload</td></tr>
                     </tbody></table></div>
-                    <div class="note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> This project description specifies the firmware behavior and configuration, not a verified source listing. Add the actual project sketch/repository when you want the full code published here.</div>
                 </section>
 
                 <section class="content-section" id="dashboard">
@@ -183,7 +181,6 @@
                         <tr><td>History</td><td>Wait for logging interval</td><td>Timestamped sensor records appear under <code>/history</code></td><td>Record result</td></tr>
                         <tr><td>Visualization</td><td>Historical graph and data table</td><td>History values appear correctly in the graph and table</td><td>Record result</td></tr>
                     </tbody></table></div>
-                    <p class="note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> LDR readings depend on the sensor module, ADC configuration, and ambient lighting. Compare readings with the environment during testing.</p>
                 </section>
 
                 <section class="content-section" id="evidence">
